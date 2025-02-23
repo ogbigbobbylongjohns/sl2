@@ -22,7 +22,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))() loca
       RememberJoins = true -- Set this to false to make them join the discord every time they load it up
    },
 
-   KeySystem = true, -- Set this to true to use our key system
+   KeySystem = false, -- Set this to true to use our key system
    KeySettings = {
       Title = "key system",
       Subtitle = "simple key system just join discord for free key.",
