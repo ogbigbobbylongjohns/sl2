@@ -244,7 +244,34 @@ local Tab = Window:CreateTab("💊STATS", 4483362458) -- Title, Image
 
 local Section = Tab:CreateSection("stat functions")
 
+local speedLoop
 
+local Toggle = Tab:CreateToggle({
+    Name = "🏃2X speed",
+    CurrentValue = false,
+    Flag = "🏃2X speedToggle",
+    Callback = function(Value)
+        local player = game.Players.LocalPlayer
+        local humanoid = player.Character and player.Character:FindFirstChild("Humanoid")
+
+        if humanoid then
+            if Value then
+                -- Start speed loop
+                speedLoop = true
+                task.spawn(function()
+                    while speedLoop do
+                        humanoid.WalkSpeed = 21
+                        wait(0.1)
+                    end
+                end)
+            else
+                -- Stop speed loop and reset speed
+                speedLoop = false
+                humanoid.WalkSpeed = 9
+            end
+        end
+    end
+})
 
 
 local Button = Tab:CreateButton({
@@ -403,7 +430,14 @@ local Tab = Window:CreateTab("🛠️Misc", 4483362458) -- Title, Image
 local Section = Tab:CreateSection("misc functions")
 
 
+local Button = Tab:CreateButton({
+   Name = "🎁auto collect presents",
+   Callback = function()
+ 
+loadstring(game:HttpGet("https://pastebin.com/raw/5wQNYkTB"))()
 
+   end,
+})
 
 local Button = Tab:CreateButton({
    Name = "🙂‍↔️Remove Camera shake",
