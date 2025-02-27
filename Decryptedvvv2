@@ -424,37 +424,70 @@ local Toggle = Tab:CreateToggle({
 
 
 
-local Tab = Window:CreateTab("🛠️Misc", 4483362458) -- Title, Image
 
 
-local Section = Tab:CreateSection("misc functions")
 
 
-local Button = Tab:CreateButton({
-   Name = "🎁auto collect presents",
-   Callback = function()
- 
-loadstring(game:HttpGet("https://pastebin.com/raw/5wQNYkTB"))()
 
+
+local Tab = Window:CreateTab("🤸‍♂️animations", 4483362458) -- Title, Image
+
+
+local Section = Tab:CreateSection("animation functions")
+
+
+
+
+
+
+local animationTrack = nil  -- Variable to hold the animation track
+local isRunning = false  -- Variable to track whether the animation is playing
+
+local Toggle = Tab:CreateToggle({
+   Name = "⛓️‍💥HandCuff Animation (OP)",
+   CurrentValue = false,
+   Flag = "Toggle1", -- A flag is the identifier for the configuration file
+   Callback = function(Value)
+       local player = game.Players.LocalPlayer
+       local character = player.Character or player.CharacterAdded:Wait()
+       local humanoid = character:FindFirstChildOfClass("Humanoid")
+
+       -- Function to play the CuffedAnim animation
+       local function playCuffedAnimation()
+           local anim = game:GetService("ReplicatedStorage"):FindFirstChild("CuffedAnim")
+           if anim and anim:IsA("Animation") then
+               local animator = humanoid:FindFirstChildOfClass("Animator")
+               if not animator then
+                   animator = Instance.new("Animator", humanoid)
+               end
+
+               -- Load and play the animation
+               animationTrack = animator:LoadAnimation(anim)
+               animationTrack:Play()
+               print("Playing Cuffed animation")
+               return animationTrack
+           else
+               print("CuffedAnim not found in ReplicatedStorage.")
+               return nil
+           end
+       end
+
+       if Value then
+           -- When the toggle is on, start playing the animation if not already playing
+           if not isRunning then
+               isRunning = true
+               animationTrack = playCuffedAnimation()
+           end
+       else
+           -- When the toggle is off, stop the animation if it's playing
+           if isRunning and animationTrack then
+               animationTrack:Stop()
+               print("Stopped Cuffed animation.")
+               isRunning = false
+           end
+       end
    end,
 })
-
-local Button = Tab:CreateButton({
-   Name = "🙂‍↔️Remove Camera shake",
-   Callback = function()
-
-
-local g_ = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("Camera_Bob")
-if g_ then g_:Destroy() end
-
-
-   end,
-})
-
-
-
-
-
 
 
 
@@ -561,6 +594,36 @@ local Toggle = Tab:CreateToggle({
                isRunning = false
            end
        end
+   end,
+})
+
+
+
+
+local Tab = Window:CreateTab("🛠️Misc", 4483362458) -- Title, Image
+
+
+local Section = Tab:CreateSection("misc functions")
+
+
+local Button = Tab:CreateButton({
+   Name = "🎁auto collect presents",
+   Callback = function()
+ 
+loadstring(game:HttpGet("https://pastebin.com/raw/5wQNYkTB"))()
+
+   end,
+})
+
+local Button = Tab:CreateButton({
+   Name = "🙂‍↔️Remove Camera shake",
+   Callback = function()
+
+
+local g_ = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("Camera_Bob")
+if g_ then g_:Destroy() end
+
+
    end,
 })
 
