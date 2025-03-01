@@ -1,7 +1,7 @@
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixeluted/adoniscries/main/Source.lua",true))()
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))() local Window = Rayfield:CreateWindow({
-   Name = "UNVIELD V1.2",
+   Name = "UNVIELD V1.2.1",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
    LoadingTitle = "Rayfield Interface Suite",
    LoadingSubtitle = "by unvield",
