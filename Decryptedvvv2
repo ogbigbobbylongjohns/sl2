@@ -1,747 +1,125 @@
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixeluted/adoniscries/main/Source.lua",true))()
-
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))() local Window = Rayfield:CreateWindow({
-   Name = "UNVIELD V1.2.1",
-   Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
-   LoadingTitle = "Rayfield Interface Suite",
-   LoadingSubtitle = "by unvield",
-   Theme = "Default", -- Check https://docs.sirius.menu/rayfield/configuration/themes
-
-   DisableRayfieldPrompts = false,
-   DisableBuildWarnings = false, -- Prevents Rayfield from warning when the script has a version mismatch with the interface
-
-   ConfigurationSaving = {
-      Enabled = true,
-      FolderName = nil, -- Create a custom folder for your hub/game
-      FileName = "sl2_/_ignore"
-   },
-
-   Discord = {
-      Enabled = false, -- Prompt the user to join your Discord server if their executor supports it
-      Invite = "https://discord.gg/hNdqejhNkq", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ ABCD would be ABCD
-      RememberJoins = true -- Set this to false to make them join the discord every time they load it up
-   },
-
-   KeySystem = false, -- Set this to true to use our key system
-   KeySettings = {
-      Title = "key system",
-      Subtitle = "simple key system just join discord for free key.",
-      Note = "join our discord for FREE key https://discord.gg/hNdqejhNkq", -- Use this to tell the user how to get a key
-      FileName = "Key", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
-      SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
-      GrabKeyFromSite = true, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
-      Key = {"https://pastebin.com/raw/EcmXwAyx","gay"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
-   }
-}) local Tab = Window:CreateTab("🎯combat", 4483362458) local Section = Tab:CreateSection("combat functions") local Divider = Tab:CreateDivider() Rayfield:Notify({
-   Title = "join our discord for questions",
-   Content = "https://discord.gg/hNdqejhNkq",
-   Duration = 6.5,
-   Image = 4483362458,
-}) 
-
-local Toggle = Tab:CreateButton({
-   Name = "🕹️AIMBOT (mobile supported)",
-   Flag = "AimbotToggle",  -- Flag for configuration saving
-   Callback = function()
-      -- Variables for the custom aimbot button
-      local Players = game:GetService("Players")
-      local RunService = game:GetService("RunService")
-      local LocalPlayer = Players.LocalPlayer
-      local Camera = game.Workspace.CurrentCamera
-
-      local aimbotEnabled = false
-      local lockedPlayer = nil
-      local screenGui = nil
-      local button = nil
-      local closeButton = nil  -- Variable for close button
-
-      -- Function to find the closest player
-      local function getClosestPlayer()
-          local closestPlayer = nil
-          local shortestDistance = math.huge
-          if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("Head") then
-              return nil
-          end
-          local localPos = LocalPlayer.Character.Head.Position
-
-          for _, player in ipairs(Players:GetPlayers()) do
-              if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
-                  local headPos = player.Character.Head.Position
-                  local distance = (headPos - localPos).Magnitude
-                  if distance < shortestDistance then
-                      closestPlayer = player
-                      shortestDistance = distance
-                  end
-              end
-          end
-          return closestPlayer
-      end
-
-      -- Aimbot Camera Tracking
-      local function startAimbot()
-          RunService.RenderStepped:Connect(function()
-              if aimbotEnabled then
-                  lockedPlayer = getClosestPlayer()
-                  if lockedPlayer and lockedPlayer.Character and lockedPlayer.Character:FindFirstChild("Head") then
-                      local headPos = lockedPlayer.Character.Head.Position
-                      Camera.CFrame = CFrame.new(Camera.CFrame.Position, headPos) -- Make camera look at head
-                  end
-              end
-          end)
-      end
-
-      -- Stop the aimbot and disconnect the function when toggle is off
-      local function stopAimbot()
-          lockedPlayer = nil
-      end
-
-      -- Function to destroy the GUI and stop aimbot
-      local function destroyAimbotGUI()
-          if screenGui then
-              screenGui:Destroy()  -- Destroy GUI
-          end
-          stopAimbot()  -- Stop aimbot
-      end
-
-      -- Create UI button
-      local function createUIButton()
-          screenGui = Instance.new("ScreenGui")
-          screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-
-          -- Close button (X) above the aimbot button
-          closeButton = Instance.new("TextButton")
-          closeButton.Size = UDim2.new(0, 30, 0, 30)
-          closeButton.Position = UDim2.new(1, -45, 0, -12)  -- Moved X button up 6 more ticks
-          closeButton.Text = "✖"  -- The X symbol
-          closeButton.TextSize = 18
-          closeButton.TextColor3 = Color3.new(1, 0, 0)  -- Red color
-          closeButton.BackgroundColor3 = Color3.new(0, 0, 0)
-          closeButton.BackgroundTransparency = 0.5
-          closeButton.Parent = screenGui
-
-          closeButton.MouseButton1Click:Connect(function()
-              destroyAimbotGUI()  -- Destroy the GUI when clicked
-          end)
-
-          -- Aimbot toggle button
-          button = Instance.new("TextButton")
-          button.Size = UDim2.new(0, 150, 0, 50)
-          button.Position = UDim2.new(1, -160, 0, 10) -- Top-right
-          button.Text = "Aimbot: OFF"
-          button.TextSize = 18
-          button.TextColor3 = Color3.new(1, 1, 1)
-          button.BackgroundColor3 = Color3.new(0, 0, 0)
-          button.BackgroundTransparency = 0.3
-          button.Parent = screenGui
-
-          button.MouseButton1Click:Connect(function()
-              aimbotEnabled = not aimbotEnabled
-              if aimbotEnabled then
-                  button.Text = "Aimbot: ON"
-                  startAimbot()
-              else
-                  button.Text = "Aimbot: OFF"
-                  stopAimbot()
-              end
-          end)
-      end
-
-      -- If the toggle is on, show the aimbot button and close button
-      if not screenGui then
-          createUIButton()
-      else
-          screenGui:Destroy() -- Destroy button if toggle is off
-          screenGui = nil
-          stopAimbot()
-      end
-   end,
-})
-
-
-
-local ToggleEnabled = false -- Tracks toggle state
-
-local Toggle = Tab:CreateToggle({
-   Name = "💀Head Expander",
-   CurrentValue = false,
-   Flag = "Toggle1",
-   Callback = function(Value)
-       ToggleEnabled = Value -- Update toggle state
-
-       if ToggleEnabled then
-           task.spawn(function()
-               while ToggleEnabled do
-                   task.wait(0.3)
-                   for _, player in pairs(game.Players:GetPlayers()) do
-                       if player ~= game.Players.LocalPlayer and player.Character then
-                           local head = player.Character:FindFirstChild("Head")
-                           if head then
-                               head.Size = Vector3.new(5, 5, 5) -- Increase hitbox size
-                               head.CanCollide = true
-                               head.Transparency = 0.3
-                               
-                               -- Fix physics issues by reapplying joints
-                               local weld = head:FindFirstChildOfClass("Weld") or head:FindFirstChildOfClass("Motor6D")
-                               if weld then
-                                   weld.Part1 = head -- Reattach head properly
-                               end
-                           end
-                       end
-                   end
-               end
-           end)
-       else
-           -- Stop the loop before resetting
-           ToggleEnabled = false
-           task.wait(0.1) -- Small delay to ensure loop fully stops
-
-           -- Reset head sizes when toggled off
-           for _, player in pairs(game.Players:GetPlayers()) do
-               if player ~= game.Players.LocalPlayer and player.Character then
-                   local head = player.Character:FindFirstChild("Head")
-                   if head then
-                       head.Size = Vector3.new(1, 1, 1) -- Reset to normal size
-                       head.CanCollide = false
-                       head.Transparency = 0
-                   end
-               end
-           end
-       end
-   end,
-})
-
-
-
-
-
-
-
-
-
-
-local Tab = Window:CreateTab("⛓️ESP", 4483362458) -- Title, Image
-
-local Section = Tab:CreateSection("esp functions")
-
-
-local Button = Tab:CreateButton({
-   Name = "👁️custom esp",
-   Callback = function()
-
-loadstring(game:HttpGet("https://pastebin.com/raw/CHpQhRcv"))()
-
-   end,
-})
-
-
-
-
-
-
-
-
-local Tab = Window:CreateTab("💊STATS", 4483362458) -- Title, Image
-
-local Section = Tab:CreateSection("stat functions")
-
-local speedLoop
-
-local Toggle = Tab:CreateToggle({
-    Name = "🏃2X speed",
-    CurrentValue = false,
-    Flag = "🏃2X speedToggle",
-    Callback = function(Value)
-        local player = game.Players.LocalPlayer
-        local humanoid = player.Character and player.Character:FindFirstChild("Humanoid")
-
-        if humanoid then
-            if Value then
-                -- Start speed loop
-                speedLoop = true
-                task.spawn(function()
-                    while speedLoop do
-                        humanoid.WalkSpeed = 21
-                        wait(0.1)
-                    end
-                end)
-            else
-                -- Stop speed loop and reset speed
-                speedLoop = false
-                humanoid.WalkSpeed = 9
-            end
-        end
-    end
-})
-
-
-local Button = Tab:CreateButton({
-   Name = "💉inf stamina",
-   Callback = function()
-
-loadstring(game:HttpGet("https://pastebin.com/raw/Z5JQtqeP", true))()
-
-   end,
-})
-
-
-local Button = Tab:CreateButton({
-   Name = "💉inf hunger",
-   Callback = function()
-
-loadstring(game:HttpGet("https://pastebin.com/raw/aeZxPh0x"))()
-
-   end,
-})
-
-
-
-local Button = Tab:CreateButton({
-   Name = "💉inf karma",
-   Callback = function()
-
-loadstring(game:HttpGet("https://pastebin.com/raw/5NPtManB", true))()
-
-   end,
-})
-
-
-
-
-
-
-
-local Tab = Window:CreateTab("💵auto farm", 4483362458) -- Title, Image
-
-
-
-local isRunning = false
-
-local Toggle = Tab:CreateToggle({
-   Name = "🍭start/stop auto sugar farm",
-   CurrentValue = false,
-   Flag = "Toggle1", -- A flag is the identifier for the configuration file
-   Callback = function(Value)
-       if Value then
-           -- If toggle is on, start the loop
-           if not isRunning then
-               isRunning = true
-               spawn(function()
-                   while isRunning do
-                       local targetCFrame = CFrame.new(185.410812, -401.020081, 664.975891, 0, 0, -1, 0, 1, 0, 1, 0, 0)
-
-                       -- Function to find the part with the exact CFrame
-                       local function findTargetPart()
-                           for _, part in ipairs(workspace:GetDescendants()) do
-                               if part:IsA("BasePart") and (part.CFrame.Position - targetCFrame.Position).Magnitude < 0.1 then
-                                   -- Compare position within a small tolerance
-                                   return part
-                               end
-                           end
-                           return nil
-                       end
-
-                       -- Run ProximityPrompt action in its own task
-                       task.spawn(function()
-                           local targetPart = findTargetPart()
-
-                           if targetPart then
-                               -- Trigger the ProximityPrompt if found
-                               for _, child in ipairs(targetPart:GetChildren()) do
-                                   if child:IsA("ProximityPrompt") then
-                                       fireproximityprompt(child) -- Trigger the ProximityPrompt
-                                   end
-                               end
-                           end
-                       end)
-
-                       -- Run the purchase actions in their own task
-                       task.spawn(function()
-                           local args1 = {
-                               [1] = "Purchase",
-                               [2] = "SugarCane"
-                           }
-
-                           game:GetService("ReplicatedStorage"):WaitForChild("UI"):WaitForChild("SugarNPC"):FireServer(unpack(args1))
-
-                           wait(0.1)
-
-                           local args2 = {
-                               [1] = "Purchase",
-                               [2] = "BakingPowder"
-                           }
-
-                           game:GetService("ReplicatedStorage"):WaitForChild("UI"):WaitForChild("SugarNPC"):FireServer(unpack(args2))
-                       end)
-
-                       -- Run the unequip and equip actions in their own task
-                       task.spawn(function()
-                           -- Wait for the items to be in the backpack
-                           local player = game.Players.LocalPlayer
-                           local backpack = player.Backpack
-
-                           local bakingPowder = backpack:WaitForChild("BakingPowder")
-                           local sugarCane = backpack:WaitForChild("SugarCane")
-
-                           -- Unequip items by moving them back to the backpack
-                           if player.Character:FindFirstChild("BakingPowder") then
-                               player.Character:FindFirstChild("BakingPowder").Parent = backpack
-                           end
-                           if player.Character:FindFirstChild("SugarCane") then
-                               player.Character:FindFirstChild("SugarCane").Parent = backpack
-                           end
-
-                           wait(0.1)
-
-                           -- Equip items again by moving them back to the character
-                           bakingPowder.Parent = player.Character
-                           wait(0.1)
-                           sugarCane.Parent = player.Character
-                           wait(0.1)
-                       end)
-
-                       -- Add the sell action at the end in its own task
-                       task.spawn(function()
-                           local args3 = {
-                               [1] = "Sell"
-                           }
-
-                           game:GetService("ReplicatedStorage"):WaitForChild("UI"):WaitForChild("SugarNPC"):FireServer(unpack(args3))
-                       end)
-
-                       -- Wait 1.5 seconds before repeating the whole script
-                       task.wait(1.5)
-                   end
-               end)
-           end
-       else
-           -- If toggle is off, stop the loop
-           isRunning = false
-       end
-   end,
-})
-
-
-
-local Tab = Window:CreateTab("👟shoes", 4483362458) -- Title, Image
-
-local Section = Tab:CreateSection("shoe functions")
-
-
-local Button = Tab:CreateButton({
-   Name = "Buy Xmas shoe (rare)[200$]",
-   Callback = function()
-   loadstring(game:HttpGet("https://pastebin.com/raw/nZip8SyM", true))()
-   end,
-})
-
-
-local Button = Tab:CreateButton({
-   Name = "Buy GoldXmas shoe (rare)[200$]",
-   Callback = function()
-loadstring(game:HttpGet("https://pastebin.com/raw/Hu4e1mkB", true))()
-   end,
-})
-
-
-local Button = Tab:CreateButton({
-   Name = "Buy Redmas shoe (rare)[200$]",
-   Callback = function()
-loadstring(game:HttpGet("https://pastebin.com/raw/AaaQCUij", true))()
-   end,
-})
-
-
-
-
-
-local Tab = Window:CreateTab("🤸‍♂️animations", 4483362458) -- Title, Image
-
-
-local Section = Tab:CreateSection("animation functions")
-
-
-
-
-
-
-local animationTrack = nil  -- Variable to hold the animation track
-local isRunning = false  -- Variable to track whether the animation is playing
-
-local Toggle = Tab:CreateToggle({
-   Name = "⛓️‍💥HandCuff Animation (OP)",
-   CurrentValue = false,
-   Flag = "Toggle1", -- A flag is the identifier for the configuration file
-   Callback = function(Value)
-       local player = game.Players.LocalPlayer
-       local character = player.Character or player.CharacterAdded:Wait()
-       local humanoid = character:FindFirstChildOfClass("Humanoid")
-
-       -- Function to play the CuffedAnim animation
-       local function playCuffedAnimation()
-           local anim = game:GetService("ReplicatedStorage"):FindFirstChild("CuffedAnim")
-           if anim and anim:IsA("Animation") then
-               local animator = humanoid:FindFirstChildOfClass("Animator")
-               if not animator then
-                   animator = Instance.new("Animator", humanoid)
-               end
-
-               -- Load and play the animation
-               animationTrack = animator:LoadAnimation(anim)
-               animationTrack:Play()
-               print("Playing Cuffed animation")
-               return animationTrack
-           else
-               print("CuffedAnim not found in ReplicatedStorage.")
-               return nil
-           end
-       end
-
-       if Value then
-           -- When the toggle is on, start playing the animation if not already playing
-           if not isRunning then
-               isRunning = true
-               animationTrack = playCuffedAnimation()
-           end
-       else
-           -- When the toggle is off, stop the animation if it's playing
-           if isRunning and animationTrack then
-               animationTrack:Stop()
-               print("Stopped Cuffed animation.")
-               isRunning = false
-           end
-       end
-   end,
-})
-
-
-
-local animationTrack = nil  -- Variable to hold the animation track
-local isRunning = false  -- Variable to track whether the animation is playing
-
-local Toggle = Tab:CreateToggle({
-   Name = "🧎auto Crouch (OP)",
-   CurrentValue = false,
-   Flag = "Toggle1", -- A flag is the identifier for the configuration file
-   Callback = function(Value)
-       local player = game.Players.LocalPlayer
-       local character = player.Character or player.CharacterAdded:Wait()
-       local humanoid = character:FindFirstChildOfClass("Humanoid")
-
-       -- Function to search for the Crouch animation in workspace
-       local function findAndPlayCrouchAnimation()
-           for _, obj in ipairs(workspace:GetDescendants()) do
-               if obj:IsA("Animation") and obj.Name:lower():find("crouch") then  -- Checks if the animation name contains "crouch"
-                   
-                   -- Ensure the character has an Animator
-                   local animator = humanoid:FindFirstChildOfClass("Animator")
-                   if not animator then
-                       animator = Instance.new("Animator", humanoid)
-                   end
-                   
-                   -- Load and play the animation
-                   local animationTrack = animator:LoadAnimation(obj)
-                   animationTrack:Play()
-                   print("Playing Crouch animation:", obj.Name)
-                   return animationTrack -- Return the animation track to stop it later
-               end
-           end
-           print("No Crouch animation found in workspace.")
-           return nil
-       end
-
-       if Value then
-           -- When the toggle is on, start playing the animation if not already playing
-           if not isRunning then
-               isRunning = true
-               animationTrack = findAndPlayCrouchAnimation()
-           end
-       else
-           -- When the toggle is off, stop the animation if it's playing
-           if isRunning and animationTrack then
-               animationTrack:Stop()
-               print("Stopped Crouch animation.")
-               isRunning = false
-           end
-       end
-   end,
-})
-
-
-
-
-
-local animationTrack = nil  -- Variable to hold the animation track
-local isRunning = false  -- Variable to track whether the animation is playing
-
-local Toggle = Tab:CreateToggle({
-   Name = "🦎snake crawl (OP)",
-   CurrentValue = false,
-   Flag = "ToggleCrawl", -- A flag is the identifier for the configuration file
-   Callback = function(Value)
-       local player = game.Players.LocalPlayer
-       local character = player.Character or player.CharacterAdded:Wait()
-       local humanoid = character:FindFirstChildOfClass("Humanoid")
-
-       -- Function to search for the Crawl animation in workspace
-       local function findAndPlayCrawlAnimation()
-           for _, obj in ipairs(workspace:GetDescendants()) do
-               if obj:IsA("Animation") and obj.Name:lower():find("crawl") then  -- Checks if the animation name contains "crawl"
-                   
-                   -- Ensure the character has an Animator
-                   local animator = humanoid:FindFirstChildOfClass("Animator")
-                   if not animator then
-                       animator = Instance.new("Animator", humanoid)
-                   end
-                   
-                   -- Load and play the animation
-                   local animationTrack = animator:LoadAnimation(obj)
-                   animationTrack:Play()
-                   print("Playing Crawl animation:", obj.Name)
-                   return animationTrack -- Return the animation track to stop it later
-               end
-           end
-           print("No Crawl animation found in workspace.")
-           return nil
-       end
-
-       if Value then
-           -- When the toggle is on, start playing the animation if not already playing
-           if not isRunning then
-               isRunning = true
-               animationTrack = findAndPlayCrawlAnimation()
-           end
-       else
-           -- When the toggle is off, stop the animation if it's playing
-           if isRunning and animationTrack then
-               animationTrack:Stop()
-               print("Stopped Crawl animation.")
-               isRunning = false
-           end
-       end
-   end,
-})
-
-
-
-
-local Tab = Window:CreateTab("🛠️Misc", 4483362458) -- Title, Image
-
-
-local Section = Tab:CreateSection("misc functions")
-
-
-local Button = Tab:CreateButton({
-   Name = "🎁auto collect presents",
-   Callback = function()
- 
-loadstring(game:HttpGet("https://pastebin.com/raw/5wQNYkTB"))()
-
-   end,
-})
-
-local Button = Tab:CreateButton({
-   Name = "🙂‍↔️Remove Camera shake",
-   Callback = function()
-
-
-local g_ = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("Camera_Bob")
-if g_ then g_:Destroy() end
-
-
-   end,
-})
-
-
-
-
-
-
-
-
-local Tab = Window:CreateTab("🚗car mods", 4483362458) -- Title, Image
-
-local Section = Tab:CreateSection("car mod functions")
-
-local Section = Tab:CreateSection("❗️READ ❗️")
-
-local Section = Tab:CreateSection("CAR MUST BE SPAWNED IN ORDER TO USE THESE COMMANDS IF YOU ALREADY HAVE THE TURBO MOD THEN IT WON'T WORK")
-
--- Button to activate turbo
-local Button = Tab:CreateButton({
-    Name = "🏎️turbo activator(free)",
-    Callback = function()
-        local player = game:GetService("Players").LocalPlayer
-        local carName = player.Name .. "'s Car"  -- Expected car name
-
-        local car = game.Workspace:FindFirstChild(carName)
-
-        if car then
-            print("Yes masa, car found")
-            
-            -- Find the TurboNStep BoolValue inside the car
-            local turbo = car:FindFirstChild("TurboNStep")
-            
-            if turbo and turbo:IsA("BoolValue") then
-                turbo.Value = true
-                print("TurboNStep set to true")
-            else
-                print("TurboNStep not found or not a BoolValue")
-            end
-        else
-            print("Car not found!")
-        end
-    end,
-})
-
--- Input for Horsepower
-local Input = Tab:CreateInput({
-    Name = "Input Horsepower",
-    CurrentValue = "150",  -- Default value for input
-    PlaceholderText = "Enter Horsepower Value",
-    RemoveTextAfterFocusLost = false,
-    Flag = "HorsepowerInput",
-    Callback = function(Text)
-        -- The function that takes place when the input is changed
-        -- The variable (Text) is a string for the value in the text box
-        local player = game:GetService("Players").LocalPlayer
-        local carName = player.Name .. "'s Car"  -- Expected car name
-
-        local car = game.Workspace:FindFirstChild(carName)
-
-        if car then
-            print("Yes masa, car found")
-            
-            -- Find the "A-Chassis Tune" module inside the car
-            local aChassisTuneModule = car:FindFirstChild("A-Chassis Tune")
-            
-            if aChassisTuneModule and aChassisTuneModule:IsA("ModuleScript") then
-                print("A-Chassis Tune module found")
-                
-                -- Require the module
-                local h = aChassisTuneModule  -- Path to the module
-                local gv = require(h)
-                
-                -- Check if the Horsepower property exists and update it
-                if gv and gv.Horsepower then
-                    gv.Horsepower = tonumber(Text)  -- Update horsepower with the input value
-                    print("Horsepower set to " .. gv.Horsepower)
-                else
-                    print("Horsepower not found in the module")
-                end
-            else
-                print("A-Chassis Tune module not found")
-            end
-        else
-            print("Car not found!")
-        end
-    end,
-})
-
-
-
-
-
-
-
-
-
+-- Load External Scripts
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixeluted/adoniscries/main/Source.lua", true))()
+
+local player = game.Players.LocalPlayer
+local playerGui = player:FindFirstChild("PlayerGui")
+
+if not playerGui then return end  -- Safety check
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = playerGui
+screenGui.Name = "LoadingScreen"
+
+-- Create blur effect
+local blurEffect = Instance.new("BlurEffect")
+blurEffect.Size = 25
+blurEffect.Parent = game.Lighting
+
+-- Main Frame
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 400, 0, 250)  -- Increased height to fit all text
+frame.Position = UDim2.new(0.5, -200, 0.5, -125)
+frame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+frame.BackgroundTransparency = 0.4
+frame.Parent = screenGui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = frame
+
+-- UI Stroke (Subtle Border)
+local frameStroke = Instance.new("UIStroke")
+frameStroke.Color = Color3.fromRGB(255, 255, 255)
+frameStroke.Thickness = 1.5
+frameStroke.Transparency = 0.7
+frameStroke.Parent = frame
+
+-- Title Label
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Text = "🔑 Unveiled | Best SL2 Script"
+titleLabel.Size = UDim2.new(1, 0, 0, 40)
+titleLabel.Position = UDim2.new(0, 0, 0, 10)
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Font = Enum.Font.GothamSemibold
+titleLabel.TextSize = 28
+titleLabel.TextStrokeTransparency = 0.8
+titleLabel.Parent = frame
+
+-- Update Section
+local bulletinsFrame = Instance.new("Frame")
+bulletinsFrame.Size = UDim2.new(1, -20, 0, 90)  -- Adjusted height to fit all text
+bulletinsFrame.Position = UDim2.new(0, 10, 0, 50)
+bulletinsFrame.BackgroundTransparency = 1
+bulletinsFrame.Parent = frame
+
+-- Update Title
+local updateTitleLabel = Instance.new("TextLabel")
+updateTitleLabel.Text = "🔄 UPDATE v2.4"
+updateTitleLabel.Size = UDim2.new(1, 0, 0, 20)
+updateTitleLabel.Position = UDim2.new(0, 0, 0, 0)
+updateTitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+updateTitleLabel.BackgroundTransparency = 1
+updateTitleLabel.Font = Enum.Font.GothamBold
+updateTitleLabel.TextSize = 22
+updateTitleLabel.TextStrokeTransparency = 0.8
+updateTitleLabel.Parent = bulletinsFrame
+
+-- Update Details (Fixed Text Not Showing)
+local bulletPointsLabel = Instance.new("TextLabel")
+bulletPointsLabel.Text = [[
+🔑 KEY SYSTEM [+File save]
+📦 AUTO SAFE [+ max storage]
+👾 OBFUSCATED CODE [+less lag]
+🚀 More Features Coming Soon
+🎮 PC SUPPORT COMING NEXT]]
+bulletPointsLabel.Size = UDim2.new(1, 0, 1, -20)
+bulletPointsLabel.Position = UDim2.new(0, 0, 0, 20)
+bulletPointsLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
+bulletPointsLabel.BackgroundTransparency = 1
+bulletPointsLabel.Font = Enum.Font.Gotham
+bulletPointsLabel.TextSize = 16  -- Slightly smaller to fit all text
+bulletPointsLabel.TextWrapped = true  -- Ensures all text is visible
+bulletPointsLabel.TextYAlignment = Enum.TextYAlignment.Top
+bulletPointsLabel.Parent = bulletinsFrame
+
+-- Progress Bar Frame
+local progressBarFrame = Instance.new("Frame")
+progressBarFrame.Size = UDim2.new(0, 380, 0, 20)
+progressBarFrame.Position = UDim2.new(0, 10, 0, 200)  -- Adjusted position
+progressBarFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+progressBarFrame.Parent = frame
+
+local progressBarFrameCorner = Instance.new("UICorner")
+progressBarFrameCorner.CornerRadius = UDim.new(0, 10)
+progressBarFrameCorner.Parent = progressBarFrame
+
+local progressBar = Instance.new("Frame")
+progressBar.Size = UDim2.new(0, 0, 1, 0)
+progressBar.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+progressBar.Parent = progressBarFrame
+
+local progressBarCorner = Instance.new("UICorner")
+progressBarCorner.CornerRadius = UDim.new(0, 10)
+progressBarCorner.Parent = progressBar
+
+-- Animate Progress Bar
+local TweenService = game:GetService("TweenService")
+local tweenInfo = TweenInfo.new(4, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+
+local progressTween = TweenService:Create(progressBar, tweenInfo, {Size = UDim2.new(1, 0, 1, 0)})
+progressTween:Play()
+
+-- Improved Async Removal of Loading Screen
+local function removeLoadingScreenAsync()
+    spawn(function()  -- Run asynchronously to avoid blocking the main thread
+        wait(7)  -- Wait before removing
+        blurEffect:Destroy()
+        screenGui:Destroy()
+        
+        -- Load Main Script
+        loadstring(game:HttpGet("https://pastebin.com/raw/2wRVPBpY"))()
+    end)
+end
+
+removeLoadingScreenAsync()  -- Call the function asynchronously
